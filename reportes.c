@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 #include "reportes.h"
 #include "limites.h"
 #include "persistencia.h"
@@ -111,6 +112,9 @@ int generarReporteConsolidado(const ZonaUrbana* zonas, int cantidad,
                                int incluir_predicciones, int incluir_alertas) {
     FILE* archivo;
     int i;
+    char nombre_archivo[256];
+    time_t ahora;
+    struct tm* tiempo_local;
     
     if (zonas == NULL || cantidad <= 0) return -1;
     
@@ -120,10 +124,16 @@ int generarReporteConsolidado(const ZonaUrbana* zonas, int cantidad,
     /* Crear directorio */
     crearDirectorioDatos();
     
+    /* Generar nombre unico para el reporte con timestamp */
+    ahora = time(NULL);
+    tiempo_local = localtime(&ahora);
+    strftime(nombre_archivo, sizeof(nombre_archivo), 
+             "datos/reporte_consolidado_%Y%m%d_%H%M%S.txt", tiempo_local);
+    
     /* Abrir archivo para escribir */
-    archivo = fopen(ARCHIVO_REPORTE, "w");
+    archivo = fopen(nombre_archivo, "w");
     if (archivo == NULL) {
-        fprintf(stderr, "[ERROR] No se puede crear archivo: %s\n", ARCHIVO_REPORTE);
+        fprintf(stderr, "[ERROR] No se puede crear archivo: %s\n", nombre_archivo);
         return -1;
     }
     
@@ -158,6 +168,6 @@ int generarReporteConsolidado(const ZonaUrbana* zonas, int cantidad,
     fprintf(archivo, "============================================================\n");
     
     fclose(archivo);
-    printf("[*] Reporte generado exitosamente: %s\n", ARCHIVO_REPORTE);
+    printf("[*] Reporte generado exitosamente: %s\n", nombre_archivo);
     return 0;
 }
