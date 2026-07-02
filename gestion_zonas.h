@@ -9,6 +9,7 @@ void menuGestionZonas(ZonaUrbana zonas[], int *cantidad);
 /* Funciones principales */
 int agregarZona(ZonaUrbana zonas[], int *cantidad);
 int modificarZona(ZonaUrbana zonas[], int cantidad);
+int agregarDiasZona(ZonaUrbana zonas[], int cantidad);
 
 /* Funciones auxiliares */
 int buscarZonaPorID(ZonaUrbana zonas[], int cantidad, int id);

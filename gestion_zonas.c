@@ -18,6 +18,84 @@ int buscarZonaPorID(ZonaUrbana zonas[], int cantidad, int id)
     return -1;
 }
 
+static void desplazarHistoricoZona(ZonaUrbana* zona)
+{
+    int i;
+
+    for(i = 0; i < DIAS_HISTORICO - 1; i++)
+    {
+        zona->historico[i] = zona->historico[i + 1];
+    }
+}
+
+int agregarDiasZona(ZonaUrbana zonas[], int cantidad)
+{
+    int id;
+    int pos;
+    int dias;
+    int i;
+    Contaminantes nuevo_dia;
+
+    if(cantidad <= 0)
+    {
+        printf("\nNo hay zonas cargadas para agregar dias.\n");
+        return 0;
+    }
+
+    printf("\nIngrese el ID de la zona a la que desea agregar dias: ");
+    scanf("%d", &id);
+
+    pos = buscarZonaPorID(zonas, cantidad, id);
+    if(pos == -1)
+    {
+        printf("\nLa zona con ID %d no existe.\n", id);
+        return 0;
+    }
+
+    do
+    {
+        printf("Cuantos dias desea agregar (1-%d): ", DIAS_HISTORICO);
+        scanf("%d", &dias);
+    } while(dias < 1 || dias > DIAS_HISTORICO);
+
+    for(i = 0; i < dias; i++)
+    {
+        printf("\n--- Datos para el dia %d ---\n", i + 1);
+
+        do
+        {
+            printf("CO: ");
+            scanf("%f", &nuevo_dia.co);
+        } while(nuevo_dia.co < 0);
+
+        do
+        {
+            printf("SO2: ");
+            scanf("%f", &nuevo_dia.so2);
+        } while(nuevo_dia.so2 < 0);
+
+        do
+        {
+            printf("NO2: ");
+            scanf("%f", &nuevo_dia.no2);
+        } while(nuevo_dia.no2 < 0);
+
+        do
+        {
+            printf("PM2.5: ");
+            scanf("%f", &nuevo_dia.pm25);
+        } while(nuevo_dia.pm25 < 0);
+
+        desplazarHistoricoZona(&zonas[pos]);
+        zonas[pos].historico[DIAS_HISTORICO - 1] = nuevo_dia;
+    }
+
+    guardarHistoricoEnArchivo(zonas, cantidad);
+    printf("\nSe agregaron %d dias al historico de la zona '%s'.\n", dias, zonas[pos].nombre);
+
+    return 1;
+}
+
 void menuGestionZonas(ZonaUrbana zonas[], int *cantidad)
 {
     int opcion;
@@ -30,6 +108,7 @@ void menuGestionZonas(ZonaUrbana zonas[], int *cantidad)
 
         printf("1. Agregar zona\n");
         printf("2. Modificar zona\n");
+        printf("3. Agregar dias a zona\n");
         printf("0. Volver\n");
 
         printf("\nOpcion: ");
@@ -43,6 +122,10 @@ void menuGestionZonas(ZonaUrbana zonas[], int *cantidad)
 
             case 2:
                 modificarZona(zonas,*cantidad);
+                break;
+
+            case 3:
+                agregarDiasZona(zonas,*cantidad);
                 break;
 
             case 0:
